@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(pnpm install *)",
+      "Bash(pnpm build *)",
+      "Bash(git init *)",
+      "Bash(git add *)",
+      "Bash(git commit -m 'Initial commit: Kloverfield phase 1 — scaffold, design system, Studio tab, provider clients, Supabase schema *)"
+    ]
+  }
+}
