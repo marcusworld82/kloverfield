@@ -40,5 +40,12 @@ Apply `supabase/migrations/0001_init.sql` against your Supabase project (SQL edi
 
 ## Build phases
 
-- **Phase 1 (this commit):** scaffold, design system, shared layout (icon rail / topbar / shell), Studio home tab, provider client wrappers with mock fallback, full DB migration.
-- **Phase 2 (next):** Characters, Canvas, Storyboard, Brainstorm, Timeline (Remotion), utility tools, Settings.
+- **Phase 1:** scaffold, design system, shared layout (icon rail / topbar / shell), Studio home tab, provider client wrappers with mock fallback, full DB migration.
+- **Phase 2 (complete):** Characters (Soul ID create/train/list + generate), Canvas (react-flow node workspace with 15 node types, undo/redo, minimap, context menu), Storyboard (LLM scene breakdown → frame generation → video → PDF export / push to Timeline), Brainstorm (model-routed chat, skill files, prompt library), Timeline (Remotion Player preview, 3 tracks, draggable/trimmable clips, export job route), Image & Video utility tools (Angles, Shots, Upscaler, Headshot, Carousel, Viral Predictor, Color Transfer), Audio Assets, Settings (provider status, spend ceiling dashboard).
+
+## Guardrails (Section 6.2/6.3 of the spec)
+
+- Batch size hard-capped at 10 at the API route level
+- Daily spend ceiling (default $20, `DAILY_SPEND_CEILING_USD`) blocks generations when hit
+- Max 3 concurrent LLM requests
+- Every generation surface uses the shared state machine: idle → queued → processing → failed/complete, auto-retry (2s/8s) on 5xx only, 10-minute dead-letter timeout
