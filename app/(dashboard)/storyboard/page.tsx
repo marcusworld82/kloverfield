@@ -1,14 +1,23 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import { Loader2, Clapperboard, FileDown, ArrowRightToLine } from "lucide-react";
+import { Suspense, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import {
+  Loader2,
+  Clapperboard,
+  FileDown,
+  ArrowRightToLine,
+  ImagePlus,
+  X,
+} from "lucide-react";
 import { SceneCard } from "@/components/storyboard/scene-card";
 import { useTimelineStore } from "@/store/timeline-store";
 import type { StoryboardScene } from "@/app/api/storyboard/generate/route";
 
-export default function StoryboardPage() {
-  const [concept, setConcept] = useState("");
+function StoryboardInner() {
+  const searchParams = useSearchParams();
+  const [concept, setConcept] = useState(searchParams.get("q") ?? "");
+  const [referenceImage, setReferenceImage] = useState<string | null>(null);
   const [scenes, setScenes] = useState<StoryboardScene[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -23,7 +32,10 @@ export default function StoryboardPage() {
       const res = await fetch("/api/storyboard/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ concept: concept.trim() }),
+        body: JSON.stringify({
+          concept: concept.trim(),
+          hasReferenceImage: !!referenceImage,
+        }),
       });
       const json = await res.json();
       if (!res.ok) throw new Error(json.error ?? "Scene breakdown failed");
@@ -59,7 +71,39 @@ export default function StoryboardPage() {
             rows={3}
             className="w-full resize-none bg-transparent px-2 py-1 text-sm text-text-primary outline-none placeholder:text-text-muted"
           />
-          <div className="mt-2 flex justify-end">
+          <div className="mt-2 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <label className="flex cursor-pointer items-center gap-1.5 rounded-full border border-dashed border-border-default px-3 py-1.5 text-xs text-text-muted hover:border-accent-red hover:text-white">
+                <ImagePlus size={13} />
+                {referenceImage ? "Starter image ✓" : "Start from image"}
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={(e) => {
+                    const f = e.target.files?.[0];
+                    if (f) setReferenceImage(URL.createObjectURL(f));
+                  }}
+                />
+              </label>
+              {referenceImage && (
+                <span className="relative">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={referenceImage}
+                    alt="Reference"
+                    className="h-9 w-9 rounded-lg border border-border-default object-cover"
+                  />
+                  <button
+                    onClick={() => setReferenceImage(null)}
+                    aria-label="Remove reference image"
+                    className="absolute -right-1.5 -top-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-bg-card text-text-muted hover:text-error"
+                  >
+                    <X size={9} />
+                  </button>
+                </span>
+              )}
+            </div>
             <button
               onClick={breakdown}
               disabled={loading || !concept.trim()}
@@ -104,6 +148,7 @@ export default function StoryboardPage() {
               <SceneCard
                 key={scene.order}
                 scene={scene}
+                referenceImage={referenceImage}
                 onPromptChange={(prompt) =>
                   setScenes((prev) =>
                     prev.map((s, j) => (j === i ? { ...s, prompt } : s))
@@ -115,5 +160,13 @@ export default function StoryboardPage() {
         </div>
       )}
     </div>
+  );
+}
+
+export default function StoryboardPage() {
+  return (
+    <Suspense>
+      <StoryboardInner />
+    </Suspense>
   );
 }

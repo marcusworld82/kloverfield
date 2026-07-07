@@ -178,7 +178,7 @@ function BrainstormInner() {
               >
                 <p className="whitespace-pre-wrap">{m.content}</p>
                 {m.role === "assistant" && (
-                  <div className="mt-2 flex items-center gap-3 border-t border-border-default pt-2">
+                  <div className="mt-2 flex flex-wrap items-center gap-3 border-t border-border-default pt-2">
                     <span className="text-[10px] text-text-muted">
                       {m.model}
                     </span>
@@ -188,6 +188,15 @@ function BrainstormInner() {
                     >
                       <BookmarkPlus size={11} /> Save to library
                     </button>
+                    {(["image", "video", "storyboard"] as const).map((dest) => (
+                      <a
+                        key={dest}
+                        href={`/${dest}?q=${encodeURIComponent(m.content.slice(0, 800))}`}
+                        className="rounded-full border border-border-default px-2 py-0.5 text-[10px] text-text-muted hover:border-accent-red hover:text-white"
+                      >
+                        → Create {dest === "storyboard" ? "Storyboard" : dest === "image" ? "Image" : "Video"}
+                      </a>
+                    ))}
                   </div>
                 )}
               </div>

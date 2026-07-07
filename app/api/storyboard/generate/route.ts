@@ -20,10 +20,12 @@ const MOCK_SCENES: StoryboardScene[] = [
 
 export async function POST(req: NextRequest) {
   try {
-    const { concept, sceneCount = 5 } = (await req.json()) as {
-      concept: string;
-      sceneCount?: number;
-    };
+    const { concept, sceneCount = 5, hasReferenceImage = false } =
+      (await req.json()) as {
+        concept: string;
+        sceneCount?: number;
+        hasReferenceImage?: boolean;
+      };
 
     if (!concept?.trim()) {
       return NextResponse.json(
@@ -42,7 +44,7 @@ export async function POST(req: NextRequest) {
         messages: [
           {
             role: "system",
-            content: `You are a storyboard director. Break the user's concept into exactly ${sceneCount} scenes. Respond ONLY with a JSON array of objects: [{"order": number, "title": string, "prompt": string}]. Each "prompt" must be a detailed, cinematic image-generation prompt.`,
+            content: `You are a storyboard director. Break the user's concept into exactly ${sceneCount} scenes. Respond ONLY with a JSON array of objects: [{"order": number, "title": string, "prompt": string}]. Each "prompt" must be a detailed, cinematic image-generation prompt.${hasReferenceImage ? " The user provided a starter reference image that every scene will use as a visual/style reference — write prompts that describe framing and action while staying consistent with a single continuous look." : ""}`,
           },
           { role: "user", content: concept },
         ],

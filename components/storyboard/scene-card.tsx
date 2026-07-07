@@ -9,9 +9,11 @@ import type { StoryboardScene } from "@/app/api/storyboard/generate/route";
 export function SceneCard({
   scene,
   onPromptChange,
+  referenceImage = null,
 }: {
   scene: StoryboardScene;
   onPromptChange: (prompt: string) => void;
+  referenceImage?: string | null;
 }) {
   const imageGen = useGeneration();
   const videoGen = useGeneration();
@@ -20,7 +22,12 @@ export function SceneCard({
   async function regenerateImage() {
     await imageGen.run({
       model: "fal-ai/flux-pro",
-      input: { prompt: scene.prompt, aspect_ratio: "16:9", batch_size: 1 },
+      input: {
+        prompt: scene.prompt,
+        aspect_ratio: "16:9",
+        batch_size: 1,
+        ...(referenceImage ? { image_url: referenceImage } : {}),
+      },
     });
   }
 

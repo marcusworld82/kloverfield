@@ -11,6 +11,7 @@ import {
 } from "@/store/timeline-store";
 import { KloverfieldComposition } from "@/components/timeline/composition";
 import { ClipBlock, PX_PER_FRAME } from "@/components/timeline/clip-block";
+import { MediaDrawer } from "@/components/timeline/media-drawer";
 
 const TRACKS: { id: TrackId; label: string; icon: React.ElementType }[] = [
   { id: "video", label: "Video", icon: Film },
@@ -96,6 +97,7 @@ export default function TimelinePage() {
             {TIMELINE_FPS}fps
           </span>
           <div className="flex items-center gap-3">
+            <MediaDrawer />
             {exportNote && (
               <span className="max-w-md truncate text-[11px] text-text-muted">
                 {exportNote}
